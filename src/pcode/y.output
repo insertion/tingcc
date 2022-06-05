@@ -2,183 +2,225 @@ Grammar
 
     0 $accept: S $end
 
-    1 S: S E '\n'
-    2  | S '\n'
-    3  | ε
+    1 S: S stmt
+    2  | stmt
+
+    3 stmt: T_Identifier '=' E ';'
 
     4 E: E '+' E
     5  | E '*' E
     6  | E '/' E
     7  | E '-' E
     8  | T_Num
-    9  | '(' E ')'
+    9  | T_Identifier
+   10  | '(' E ')'
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
-    '\n' (10) 1 2
-    '(' (40) 9
-    ')' (41) 9
+    '(' (40) 10
+    ')' (41) 10
     '*' (42) 5
     '+' (43) 4
     '-' (45) 7
     '/' (47) 6
+    ';' (59) 3
+    '=' (61) 3
     error (256)
     T_Num (258) 8
+    T_Identifier (259) 3 9
 
 
 Nonterminals, with rules where they appear
 
-    $accept (11)
+    $accept (13)
         on left: 0
-    S (12)
-        on left: 1 2 3
-        on right: 0 1 2
-    E (13)
-        on left: 4 5 6 7 8 9
-        on right: 1 4 5 6 7 9
+    S (14)
+        on left: 1 2
+        on right: 0 1
+    stmt (15)
+        on left: 3
+        on right: 1 2
+    E (16)
+        on left: 4 5 6 7 8 9 10
+        on right: 3 4 5 6 7 10
 
 
 State 0
 
     0 $accept: • S $end
 
-    $default  reduce using rule 3 (S)
+    T_Identifier  shift, and go to state 1
 
-    S  go to state 1
+    S     go to state 2
+    stmt  go to state 3
 
 
 State 1
 
-    0 $accept: S • $end
-    1 S: S • E '\n'
-    2  | S • '\n'
+    3 stmt: T_Identifier • '=' E ';'
 
-    $end   shift, and go to state 2
-    T_Num  shift, and go to state 3
-    '\n'   shift, and go to state 4
-    '('    shift, and go to state 5
-
-    E  go to state 6
+    '='  shift, and go to state 4
 
 
 State 2
+
+    0 $accept: S • $end
+    1 S: S • stmt
+
+    $end          shift, and go to state 5
+    T_Identifier  shift, and go to state 1
+
+    stmt  go to state 6
+
+
+State 3
+
+    2 S: stmt •
+
+    $default  reduce using rule 2 (S)
+
+
+State 4
+
+    3 stmt: T_Identifier '=' • E ';'
+
+    T_Num         shift, and go to state 7
+    T_Identifier  shift, and go to state 8
+    '('           shift, and go to state 9
+
+    E  go to state 10
+
+
+State 5
 
     0 $accept: S $end •
 
     $default  accept
 
 
-State 3
+State 6
+
+    1 S: S stmt •
+
+    $default  reduce using rule 1 (S)
+
+
+State 7
 
     8 E: T_Num •
 
     $default  reduce using rule 8 (E)
 
 
-State 4
-
-    2 S: S '\n' •
-
-    $default  reduce using rule 2 (S)
-
-
-State 5
-
-    9 E: '(' • E ')'
-
-    T_Num  shift, and go to state 3
-    '('    shift, and go to state 5
-
-    E  go to state 7
-
-
-State 6
-
-    1 S: S E • '\n'
-    4 E: E • '+' E
-    5  | E • '*' E
-    6  | E • '/' E
-    7  | E • '-' E
-
-    '+'   shift, and go to state 8
-    '-'   shift, and go to state 9
-    '*'   shift, and go to state 10
-    '/'   shift, and go to state 11
-    '\n'  shift, and go to state 12
-
-
-State 7
-
-    4 E: E • '+' E
-    5  | E • '*' E
-    6  | E • '/' E
-    7  | E • '-' E
-    9  | '(' E • ')'
-
-    '+'  shift, and go to state 8
-    '-'  shift, and go to state 9
-    '*'  shift, and go to state 10
-    '/'  shift, and go to state 11
-    ')'  shift, and go to state 13
-
-
 State 8
 
-    4 E: E '+' • E
-
-    T_Num  shift, and go to state 3
-    '('    shift, and go to state 5
-
-    E  go to state 14
-
-
-State 9
-
-    7 E: E '-' • E
-
-    T_Num  shift, and go to state 3
-    '('    shift, and go to state 5
-
-    E  go to state 15
-
-
-State 10
-
-    5 E: E '*' • E
-
-    T_Num  shift, and go to state 3
-    '('    shift, and go to state 5
-
-    E  go to state 16
-
-
-State 11
-
-    6 E: E '/' • E
-
-    T_Num  shift, and go to state 3
-    '('    shift, and go to state 5
-
-    E  go to state 17
-
-
-State 12
-
-    1 S: S E '\n' •
-
-    $default  reduce using rule 1 (S)
-
-
-State 13
-
-    9 E: '(' E ')' •
+    9 E: T_Identifier •
 
     $default  reduce using rule 9 (E)
 
 
+State 9
+
+   10 E: '(' • E ')'
+
+    T_Num         shift, and go to state 7
+    T_Identifier  shift, and go to state 8
+    '('           shift, and go to state 9
+
+    E  go to state 11
+
+
+State 10
+
+    3 stmt: T_Identifier '=' E • ';'
+    4 E: E • '+' E
+    5  | E • '*' E
+    6  | E • '/' E
+    7  | E • '-' E
+
+    '+'  shift, and go to state 12
+    '-'  shift, and go to state 13
+    '*'  shift, and go to state 14
+    '/'  shift, and go to state 15
+    ';'  shift, and go to state 16
+
+
+State 11
+
+    4 E: E • '+' E
+    5  | E • '*' E
+    6  | E • '/' E
+    7  | E • '-' E
+   10  | '(' E • ')'
+
+    '+'  shift, and go to state 12
+    '-'  shift, and go to state 13
+    '*'  shift, and go to state 14
+    '/'  shift, and go to state 15
+    ')'  shift, and go to state 17
+
+
+State 12
+
+    4 E: E '+' • E
+
+    T_Num         shift, and go to state 7
+    T_Identifier  shift, and go to state 8
+    '('           shift, and go to state 9
+
+    E  go to state 18
+
+
+State 13
+
+    7 E: E '-' • E
+
+    T_Num         shift, and go to state 7
+    T_Identifier  shift, and go to state 8
+    '('           shift, and go to state 9
+
+    E  go to state 19
+
+
 State 14
+
+    5 E: E '*' • E
+
+    T_Num         shift, and go to state 7
+    T_Identifier  shift, and go to state 8
+    '('           shift, and go to state 9
+
+    E  go to state 20
+
+
+State 15
+
+    6 E: E '/' • E
+
+    T_Num         shift, and go to state 7
+    T_Identifier  shift, and go to state 8
+    '('           shift, and go to state 9
+
+    E  go to state 21
+
+
+State 16
+
+    3 stmt: T_Identifier '=' E ';' •
+
+    $default  reduce using rule 3 (stmt)
+
+
+State 17
+
+   10 E: '(' E ')' •
+
+    $default  reduce using rule 10 (E)
+
+
+State 18
 
     4 E: E • '+' E
     4  | E '+' E •
@@ -186,13 +228,13 @@ State 14
     6  | E • '/' E
     7  | E • '-' E
 
-    '*'  shift, and go to state 10
-    '/'  shift, and go to state 11
+    '*'  shift, and go to state 14
+    '/'  shift, and go to state 15
 
     $default  reduce using rule 4 (E)
 
 
-State 15
+State 19
 
     4 E: E • '+' E
     5  | E • '*' E
@@ -200,13 +242,13 @@ State 15
     7  | E • '-' E
     7  | E '-' E •
 
-    '*'  shift, and go to state 10
-    '/'  shift, and go to state 11
+    '*'  shift, and go to state 14
+    '/'  shift, and go to state 15
 
     $default  reduce using rule 7 (E)
 
 
-State 16
+State 20
 
     4 E: E • '+' E
     5  | E • '*' E
@@ -217,7 +259,7 @@ State 16
     $default  reduce using rule 5 (E)
 
 
-State 17
+State 21
 
     4 E: E • '+' E
     5  | E • '*' E

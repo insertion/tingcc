@@ -1,24 +1,31 @@
 %{
-#include<stdio.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 void yyerror(const char*) {printf("sytax error!\n");}
 int yylex();
+#define YYSTYPE  char*
 %}
 
-%token T_Num
+%token T_Num T_Identifier
 %left '+' '-'
 %left '*' '/'
 
 %%
-  S : S E '\n'    { printf("EndLine\n"); }
-    | S '\n'      //忽略空行
-    |
+/* S是起始符号,所有的语句必须最终收敛为S */
+S   : S stmt
+    | stmt
     ;
 
-  E : E '+' E   { printf("add\n"); }
+stmt: T_Identifier '=' E ';' {printf("pop %s\n", $1); }
+    ;
+
+E   : E '+' E   { printf("add\n"); }
     | E '*' E   { printf("mul\n"); }
     | E '/' E   { printf("div\n"); }
     | E '-' E   { printf("sub\n"); }
-    | T_Num     { printf("push %d\n", $1); }
+    | T_Num     { printf("push %s\n", $1); }
+    | T_Identifier {printf("push %s\n", $1); }
     | '(' E ')' {/* nothing */}
     ;
 %%
